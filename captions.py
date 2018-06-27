@@ -4,7 +4,7 @@ colname = 'videoId'													# column storing video ids
 delimiter = '\t'													# delimiter, e.g. ',' for CSV or '\t' for TAB
 waittime = 10														# seconds browser waits before giving up
 sleeptime = [5,15]													# random seconds range before loading next video id
-headless = True
+headless = True														# select True if you want the browser window to be invisible (but not inaudible)
 
 #do not modify below
 from time import sleep
@@ -48,7 +48,12 @@ def gettranscript(videoid):
 		driver.quit()
 		return msg
 
-	element.click()
+	try:
+		element.click()
+	except:
+		msg = 'could not click'
+		driver.quit()
+		return msg
 
 	try:
 	    element = WebDriverWait(driver, waittime).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#items > ytd-menu-service-item-renderer:nth-child(2) > yt-formatted-string"))) #items > ytd-menu-service-item-renderer:nth-child(2) > yt-formatted-string
@@ -57,7 +62,12 @@ def gettranscript(videoid):
 		driver.quit()
 		return msg
 
-	element.click()
+	try:
+		element.click()
+	except:
+		msg = 'could not click'
+		driver.quit()
+		return msg
 
 	try:
 	    element = WebDriverWait(driver, waittime).until(EC.presence_of_element_located((By.CSS_SELECTOR, "ytd-transcript-body-renderer.style-scope")))
