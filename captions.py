@@ -4,6 +4,7 @@ colname = 'videoId'													# column storing video ids
 delimiter = '\t'													# delimiter, e.g. ',' for CSV or '\t' for TAB
 waittime = 10														# seconds browser waits before giving up
 sleeptime = [5,15]													# random seconds range before loading next video id
+headless = True
 
 #do not modify below
 from time import sleep
@@ -15,6 +16,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.firefox.options import Options
 
 
 def gettranscript(videoid):
@@ -25,8 +27,16 @@ def gettranscript(videoid):
 		msg = 'transcript file already exists'
 		return msg
 
+	sleep(random.uniform(sleeptime[0],sleeptime[1]))
+
+	options = Options()
+	options.add_argument("--headless")
+
 	# Create a new instance of the Firefox driver
-	driver = webdriver.Firefox()
+	if headless:
+		driver = webdriver.Firefox(firefox_options=options)
+	else:
+		driver = webdriver.Firefox()
 
 	# navigate to video
 	driver.get("https://www.youtube.com/watch?v="+videoid)
@@ -86,4 +96,3 @@ for row in csvreader:
 	logit(row[colname],msg)
 	rowcount -= 1
 	print(str(rowcount) + " :  " + row[colname] + " : " + msg)
-	sleep(random.uniform(sleeptime[0],sleeptime[1]))
