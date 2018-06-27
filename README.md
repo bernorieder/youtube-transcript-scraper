@@ -1,7 +1,7 @@
 # youtube-transcript-scraper
 
 ## description
-Since YouTube does not provide automatically generated transcript via its API, this script uses browser automation to click through the YouTube web interface and download the transcript file.
+Since YouTube does not provide automatically generated transcripts via its API and normal scraping does not work with YT's ajaxy interface, this script uses browser automation to click through the YouTube web interface and download the transcript file.
 
 ## requirements
 * a functioning webdriver environment (tested with [https://github.com/mozilla/geckodriver/releases][1]);
