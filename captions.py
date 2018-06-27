@@ -1,45 +1,89 @@
-import time
+# modify these values
+filename = 'videolist_zembla_273_2018_05_25-09_17_02.tab'			# filname with video ids
+colname = 'videoId'													# column storing video ids
+delimiter = '\t'													# delimiter, e.g. ',' for CSV or '\t' for TAB
+waittime = 10														# seconds browser waits before giving up
+sleeptime = [5,15]													# random seconds range before loading next video id
+
+#do not modify below
+from time import sleep
+import csv
+import random
+import os.path
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
-from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
-videoid = "s7zXV1NT2D8"
 
-# Create a new instance of the Firefox driver
-driver = webdriver.Firefox()
+def gettranscript(videoid):
 
-# go to the google home page
-driver.get("https://www.youtube.com/watch?v="+videoid)
+	# check if transcript file already exists	
+	writefilename = 'subtitles/transcript_' + videoid + '.txt'
+	if os.path.isfile(writefilename):
+		msg = 'transcript file already exists'
+		return msg
 
-# the page is ajaxy so the title is originally this:
-print(driver.title)
+	# Create a new instance of the Firefox driver
+	driver = webdriver.Firefox()
 
-try:
-    element = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "yt-icon-button.dropdown-trigger > button:nth-child(1)")))
-except:
-	print("problem")
+	# navigate to video
+	driver.get("https://www.youtube.com/watch?v="+videoid)
+
+	try:
+	    element = WebDriverWait(driver, waittime).until(EC.presence_of_element_located((By.CSS_SELECTOR, "yt-icon-button.dropdown-trigger > button:nth-child(1)")))
+	except:
+		msg = 'could not find options button'
+		driver.quit()
+		return msg
+
+	element.click()
+
+	try:
+	    element = WebDriverWait(driver, waittime).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#items > ytd-menu-service-item-renderer:nth-child(2) > yt-formatted-string"))) #items > ytd-menu-service-item-renderer:nth-child(2) > yt-formatted-string
+	except:
+		msg = 'could not find transcript in options menu'
+		driver.quit()
+		return msg
+
+	element.click()
+
+	try:
+	    element = WebDriverWait(driver, waittime).until(EC.presence_of_element_located((By.CSS_SELECTOR, "ytd-transcript-body-renderer.style-scope")))
+	except:
+		msg = 'could not find transcript text'
+		driver.quit()
+		return msg
+
+	#print(element.text)
+
+	file = open(writefilename,"w")
+	file.write(element.text)
+	file.close() 
+
 	driver.quit()
 
-element.click()
+	return 'ok'
 
-try:
-    element = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "yt-formatted-string.ytd-menu-service-item-renderer")))
-finally:
-	print("problem")
+# log function
+def logit(id,msg):
+	logwriter.writerow({'id':id,'msg':msg})
+	
 
-element.click()
+# prepare log file
+logwrite = open('captions.log','w',newline='\n')
+logwriter = csv.DictWriter(logwrite, fieldnames=['id','msg'])
+logwriter.writeheader()
 
-try:
-    element = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "ytd-transcript-body-renderer.style-scope")))
-finally:
-	print("problem")
+# read CSV file
+csvread = open(filename, newline='\n')
+csvreader = csv.DictReader(csvread, delimiter=delimiter, quoting=csv.QUOTE_NONE)
+rowcount = len(open(filename).readlines())
 
-print(element.text)
-
-file = open("transcript_"+videoid+".txt","w")
-file.write(element.text)
-file.close() 
-
-driver.quit()
+for row in csvreader:
+	msg = gettranscript(row[colname])
+	logit(row[colname],msg)
+	rowcount -= 1
+	print(str(rowcount) + " :  " + row[colname] + " : " + msg)
+	sleep(random.uniform(sleeptime[0],sleeptime[1]))
