@@ -6,7 +6,7 @@ Since YouTube does not provide automatically generated transcripts via its API a
 ## requirements
 * a functioning webdriver environment (tested with [https://github.com/mozilla/geckodriver/releases][1]);
 * the selenium package for Python;
-* takes a CSV file with a column for video ids as input;
+* a CSV file with a column for video ids as input;
 
 ## use
 * download script;
