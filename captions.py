@@ -56,7 +56,7 @@ def gettranscript(videoid):
 		return msg
 
 	try:
-	    element = WebDriverWait(driver, waittime).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#items > ytd-menu-service-item-renderer:nth-child(2) > yt-formatted-string"))) #items > ytd-menu-service-item-renderer:nth-child(2) > yt-formatted-string
+	    element = WebDriverWait(driver, waittime).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#items > ytd-menu-service-item-renderer:nth-child(2) > paper-item > yt-formatted-string"))) #items > ytd-menu-service-item-renderer:nth-child(2) > paper-item > yt-formatted-string
 	except:
 		msg = 'could not find transcript in options menu'
 		driver.quit()
