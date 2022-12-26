@@ -35,8 +35,9 @@ def storecaptions(writefilename, captions=""):
     file.close() 
 
 def gettranscript(driver, videoid, publishedAt):
-    # check if transcript file already exists    
-    writefilename = 'captions/transcript_%s_%s.txt' % (publishedAt, videoid)
+    # check if transcript file already exists
+    filekey = "_".join([publishedAt, videoid]) if publishedAt else videoid
+    writefilename = 'captions/transcript_%s.txt' % filekey
     if os.path.isfile(writefilename):
         msg = 'transcript file already exists'
         return msg
@@ -50,20 +51,20 @@ def gettranscript(driver, videoid, publishedAt):
         msg = 'could not find subtitles button'
         return msg
 
-	# save an empty file if this video has no subtitles, so we don't revisit it if the script is run again
+    # save an empty file if this video has no subtitles, so we don't revisit it if the script is run again
     if "unavailable" in element.get_attribute("title"):
         msg = 'video has no captions'
         storecaptions(writefilename)
         return msg
 
-	# enable subtitles
+    # enable subtitles
     try:
         element.click()
     except:
         msg = 'could not click'
         return msg
 
-	# wait for the subtitles to be fetched
+    # wait for the subtitles to be fetched
     try: 
         request = driver.wait_for_request('/timedtext', timeout=15)
         captionsResp = request.response
@@ -83,7 +84,7 @@ def gettranscript(driver, videoid, publishedAt):
     # cool down
     sleep(random.uniform(sleeptime[0],sleeptime[1]))
 
-	# clear all requests
+    # clear all requests
     del driver.requests
 
     return 'ok'
@@ -107,7 +108,7 @@ rowcount = len(open(filename).readlines())
 options = Options()
 
 if adblock_path:
-	options.add_argument('load-extension=' + adblock_path)
+    options.add_argument('load-extension=' + adblock_path)
 
 if headless:
     options.add_argument("--headless")
@@ -120,14 +121,16 @@ driver.scopes = [
 ]
 
 if adblock_path:
-	#let adblock installation finish
-	sleep(10)
-	#switch back to main tab
-	driver.switch_to.window(driver.window_handles[0])
+    #let adblock installation finish
+    sleep(10)
+    #switch back to main tab
+    driver.switch_to.window(driver.window_handles[0])
 
 try: 
     for row in csvreader:
-        msg = gettranscript(driver, row[colname], row[publishedcolname])
+        videoId = row[colname]
+        publishedOn = row[publishedcolname] if publishedcolname in row else None
+        msg = gettranscript(driver, videoId, publishedOn)
         logit(row[colname],msg)
         rowcount -= 1
         print(str(rowcount) + " :  " + row[colname] + " : " + msg)

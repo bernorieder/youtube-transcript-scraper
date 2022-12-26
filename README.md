@@ -10,9 +10,9 @@ Since YouTube does not provide automatically generated transcripts via its API a
 
 ## use
 * download script;
-* create a directory called "subtitles" and make sure the script can write to it;
-* modify captions.py with your CSV filename;
-* make sure that webdriver and selenium are installed;
-* run the script;
+* enable a virtual environment (venv)
+* install dependencies with `pip install -r requirements.txt`
+* modify `videos.csv` with a list of videos you wish to fetch captions from. Each line should contain at least the video id and optionally the video publish date
+* run the script `python captions.py`
 
 [1]:	https://github.com/mozilla/geckodriver/releases
