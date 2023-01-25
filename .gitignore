@@ -1,2 +1,5 @@
 geckodriver.log
-transcript_*
+captions/*.txt
+env
+.vscode
+captions.log
